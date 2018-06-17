@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Pacifier Labeling Tool</title>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.1.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.0/dist/semantic.min.css">
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.0/dist/semantic.min.js"></script>
+
+
+</head>
+<body>
+  <table class="ui two column table">
+    <tbody>
+      <tr>
+        <td><img class="ui centered image" id="im" style='width:500px'></td>
+        <td>
+          <div class="ui vertical buttons">
+            <button class="ui massive green button" id="bu0">Schnuller</button>
+            <button class="ui massive teal button" id="bu1">Kein Schnuller</button>
+            <button class="ui massive red button" id="bu2">Kein Kindergesicht</button>
+          </div>
+        </td>
+      </tr>
+      
+    </tbody>
+  </table>
+
+<script type="text/javascript">
+let im = document.getElementById('im');
+let ws;
+
+function init_websocket(){
+  let domain = '{{domain}}';
+  let port = {{port}};
+  let url = 'ws://'+domain+":"+port.toString() + '/ws_label';
+  ws = new WebSocket(url);
+  ws.onopen = function(){
+    console.log('[ws] opened connection',this);
+  };
+  ws.onmessage = function(message){
+    console.log('[ws] onmessage',message);
+    let data = JSON.parse(message['data']);
+    im.src = data['url'];
+  }
+}
+init_websocket();
+
+$('.button').each(function(i, obj) {
+    obj.onclick = function(){
+      let data = {'clicked':this.id,'url':im.src};
+      let message = JSON.stringify(data);
+      ws.send(message);
+      console.log('onclick',message);
+    };
+});
+
+</script>
+</body>
+</html>
