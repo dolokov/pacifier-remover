@@ -20,15 +20,10 @@ from tornado.web import asynchronous
 from tornado.ioloop import IOLoop
 from tornado import gen
 
+import Settings as SE
 
-directory_base = '/data/pacifier/face_crops'
-directory_unlabeled = os.path.join(directory_base,'unlabeled')
-directory_labeled = os.path.join(directory_base,'labeled')
-directory_pacifier = os.path.join(directory_labeled,'with')
-directory_wo_pacifier = os.path.join(directory_labeled,'without')
-directory_rejected = os.path.join(directory_labeled,'rejected')
-
-file_extensions = ['.jpg','.jpeg','.png','.bmp']
+directory_base,directory_unlabeled,directory_labeled,directory_pacifier,directory_wo_pacifier,directory_rejected = \
+    [SE.directory_base,SE.directory_unlabeled,SE.directory_labeled,SE.directory_pacifier,SE.directory_wo_pacifier,SE.directory_rejected]
 
 for d in [directory_base,directory_unlabeled,directory_labeled,directory_pacifier,directory_wo_pacifier,directory_rejected]:
     if not os.path.isdir(d): os.makedirs(d)
