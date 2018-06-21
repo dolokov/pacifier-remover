@@ -23,7 +23,11 @@ class FaceDetector(object):
         # initialize dlib's face detector (HOG-based) and then create
         # the facial landmark predictor
         self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor('/data/pacifier/models/shape_predictor_68_face_landmarks.dat')
+        try:
+            self.predictor = dlib.shape_predictor('/data/pacifier/shape_predictor_68_face_landmarks.dat')
+        except:
+            print(""" could not find shape predictor. please download from http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 """)
+            raise Exception()
 
     def getBoundingBoxescv2(self,image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -53,11 +57,14 @@ class FaceDetector(object):
             return (x, y, w, h)
 
         faces = [ rect_to_bb(face) for face in faces]
-        print('[*] detected',faces)
         return faces
 
     def getBoundingBoxes(self,image):
-        return self.getBoundingBoxesdlib(image)
+        bboxes =  self.getBoundingBoxesdlib(image)
+        if not bboxes:
+            bboxes = self.getBoundingBoxescv2(image)
+        #print('[*] detected',bboxes)
+        return bboxes
 
     def getCrops(self,image):
         return [ image[y:y+h,x:x+w] for (x,y,w,h) in self.getBoundingBoxes(image) ]
@@ -89,7 +96,8 @@ def main():
 
     if os.path.isdir(fn_image_input):
         fns_in = glob(os.path.join(fn_image_input,'*'))
-        assert os.path.isdir(fn_image_output),'Output should be directory if input is directory'
+        if not os.path.isdir(fn_image_output):#,'Output should be directory if input is directory'
+            os.makedirs(fn_image_output)
         fns_out = [ os.path.join(fn_image_output,fn_in.split('/')[-1]) for fn_in in fns_in ]
     else:
         fns_in = [fn_image_input]
@@ -99,22 +107,29 @@ def main():
 
     if args.drawBoundingBox:
         for i,fn_image_input in enumerate(fns_in):
-            img = cv2.imread(fn_image_input)
-            img = face_detector.getDrawnBoundingBoxes(img)
-            cv2.imwrite(fns_out[i],img)
-            if i % int(len(fns_in)/10):
-                print('[*] drawBoundingBox %i/%i'%(i,len(fns_in)))
+            try:
+                img = cv2.imread(fn_image_input)
+                if img is not None: 
+                    img = face_detector.getDrawnBoundingBoxes(img)
+                    cv2.imwrite(fns_out[i],img)
+                    if i % int(len(fns_in)/10):
+                        print('[*] drawBoundingBox %i/%i'%(i,len(fns_in)))
+                else:
+                    print('[WARNING]',fn_image_input)
+            except:
+                ''
         return
 
     ## do face crops
     for i,fn_image_input in enumerate(fns_in):
         fext = '.%s'%fn_image_input.split('.')[-1]
         img = cv2.imread(fn_image_input)
-        crops = face_detector.getCrops(img)
-        for j,crop in enumerate(crops):
-            cfn = fns_out[i].replace(fext,'%i%s'%(j,fext))
-            cv2.imwrite(cfn,crop)
-        print('[*] %i/%i'%(i,len(fns_in)))
+        if img is not None:
+            crops = face_detector.getCrops(img)
+            for j,crop in enumerate(crops):
+                cfn = fns_out[i].replace(fext,'%i%s'%(j,fext))
+                cv2.imwrite(cfn,crop)
+            print('[*] %i/%i'%(i,len(fns_in)))
 
 if __name__ == '__main__':
     main()
