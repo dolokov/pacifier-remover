@@ -128,7 +128,10 @@ def main():
             crops = face_detector.getCrops(img)
             for j,crop in enumerate(crops):
                 cfn = fns_out[i].replace(fext,'%i%s'%(j,fext))
-                cv2.imwrite(cfn,crop)
+                try:
+                    cv2.imwrite(cfn,crop)
+                except:
+                    ''
             print('[*] %i/%i'%(i,len(fns_in)))
 
 if __name__ == '__main__':
