@@ -32,13 +32,7 @@ class Database(object):
 				# make square by center cropping
 				s = im.shape[:2]
 				_s = min(s)
-
-				if im.shape[0]>im.shape[1]: # higher than wider
-					im = im[ s[0]//2-self.shape[1]//2:s[0]//2+self.shape[1]//2 ,:]
-				else:
-					im = im[ :, s[1]//2-self.shape[2]//2:s[1]//2+self.shape[2]//2]
 				im = cv2.resize(im,(self.shape[1],self.shape[2]),interpolation=cv2.INTER_AREA)
-		
 				self.data[fn] = {'im':im}
 				# hflipping
 				self.data[fn+'_hflip'] = {'im':np.fliplr(im)}

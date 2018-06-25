@@ -33,7 +33,7 @@ PORT = 8888
 
 def get_next_unlabeled_url():
     fns = []
-    for e in file_extensions:
+    for e in SE.file_extensions:
         fns += glob(os.path.join(directory_unlabeled,'*%s'%e))
     fn = fns[0]
     url = '/images/%s' % fn.split('/')[-1]

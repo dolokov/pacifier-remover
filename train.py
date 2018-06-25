@@ -7,6 +7,7 @@ import numpy as np
 import cv2 
 
 import tensorflow as tf 
+print('[*] imported tensorflow',tf.__version__)
 
 import model
 import argument_parse
@@ -14,8 +15,9 @@ import database
 
 CROP_SIZE = 64
 RESIZED = 64
-B,H,W,N = 2, RESIZED, RESIZED, 3
+B,H,W,N = 32, RESIZED, RESIZED, 3
 batch_shape = [B,H,W,N]
+
 
 def train(a):
     if not os.path.isdir(a.output_dir): os.makedirs(a.output_dir)
